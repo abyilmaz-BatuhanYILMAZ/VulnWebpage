@@ -1,0 +1,368 @@
+﻿@model vulnerablewebpage.Models.XssLabPageViewModel
+
+@{
+    ViewData["Title"] = "XSS Lab";
+}
+
+<div class="mb-4">
+    <h1 class="mb-3">XSS Lab - Reflected / Stored / DOM</h1>
+    <p class="text-muted">
+        This page intentionally demonstrates both unsafe and safe patterns for educational purposes.
+    </p>
+</div>
+
+<div class="row g-4">
+
+    <!-- REFLECTED XSS -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning-subtle">
+                <h2 class="h4 mb-0">1) Reflected XSS</h2>
+            </div>
+            <div class="card-body">
+                <p>
+                    Reflected XSS senaryosunda veri veritabanına kaydedilmez. Kullanıcıdan alınan veri
+                    URL / query string üzerinden gelir ve aynı istek içinde sayfaya geri yansıtılır.
+                </p>
+
+                <form asp-controller="XssLab" asp-action="Index" method="get" class="mb-4">
+                    <div class="mb-3">
+                        <label for="reflectedInput" class="form-label fw-bold">Reflected Input</label>
+                        <input type="text" id="reflectedInput" name="reflectedInput" class="form-control" value="@Model.ReflectedInput" />
+                    </div>
+
+                    <button type="submit" class="btn btn-warning">Reflected Testi Çalıştır</button>
+                </form>
+
+                <p class="mb-2">
+                    Örnek payload:
+                </p>
+                <pre>?reflectedInput=&lt;script&gt;alert('reflected-xss')&lt;/script&gt;</pre>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current reflected input</label>
+                    <input class="form-control" value="@Model.ReflectedInput" readonly />
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded bg-light h-100">
+                            <h3 class="h5 text-danger">Unsafe reflected render</h3>
+
+                            <div class="alert alert-danger">
+                                <strong>Açıklama:</strong><br />
+                                Burada kullanıcıdan gelen veri <code>Html.Raw(...)</code> ile doğrudan HTML olarak sayfaya basılır.
+                                Bu yüzden tarayıcı bu değeri metin gibi göstermek yerine HTML / JavaScript olarak yorumlayabilir.
+                                Eğer zararlı bir payload verilirse script çalışabilir.
+                            </div>
+
+                            <div class="demo-box">
+                                @Html.Raw(Model.ReflectedInput)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded bg-light h-100">
+                            <h3 class="h5 text-success">Safe reflected render</h3>
+
+                            <div class="alert alert-success">
+                                <strong>Açıklama:</strong><br />
+                                Burada aynı veri normal Razor çıktısı ile yani <code>@Model.ReflectedInput</code> şeklinde basılır.
+                                Razor özel karakterleri encode ettiği için tarayıcı bunu çalıştırılabilir kod olarak değil,
+                                düz metin olarak görür. Bu yüzden script çalışmaz.
+                            </div>
+
+                            <div class="demo-box">
+                                @Model.ReflectedInput
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STORED XSS -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info-subtle">
+                <h2 class="h4 mb-0">2) Stored XSS</h2>
+            </div>
+            <div class="card-body">
+                <p>
+                    Stored XSS senaryosunda veri veritabanına kaydedilir. Daha sonra bu kayıtlar tekrar ekrana getirilirken
+                    güvenli ya da güvensiz şekilde render edilebilir.
+                </p>
+
+                <form asp-controller="XssLab" asp-action="SaveStored" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label asp-for="StoredTitle" class="form-label"></label>
+                        <input asp-for="StoredTitle" class="form-control" />
+                        <span asp-validation-for="StoredTitle" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="StoredContent" class="form-label"></label>
+                        <textarea asp-for="StoredContent" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="StoredContent" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Stored Input</button>
+                </form>
+
+                <hr class="my-4" />
+
+                <p class="mb-2">
+                    Örnek payload:
+                </p>
+                <pre>&lt;img src=x onerror=alert('stored-xss')&gt;</pre>
+
+                @if (Model.StoredEntries.Any())
+                {
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <h3 class="h5 text-danger">Unsafe stored render</h3>
+
+                            <div class="alert alert-danger">
+                                <strong>Açıklama:</strong><br />
+                                Burada veritabanına kaydedilmiş içerik <code>Html.Raw(item.Content)</code> ile basılıyor.
+                                Yani kayıtlı veri tekrar ekrana getirilirken encode edilmeden HTML olarak işleniyor.
+                                Bu nedenle veritabanında zararlı payload varsa sayfa açıldığında çalışabilir.
+                                Stored XSS'in tehlikesi de budur: payload kaydedilir ve daha sonra tekrar tekrar tetiklenebilir.
+                            </div>
+
+                            @foreach (var item in Model.StoredEntries)
+                            {
+                                <div class="border rounded p-3 mb-3 bg-light">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div><strong>Title:</strong> @item.Title</div>
+                                            <div><strong>CreatedAtUtc:</strong> @item.CreatedAtUtc</div>
+                                        </div>
+
+                                        <form asp-controller="XssLab" asp-action="DeleteStored" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
+
+                                    <hr />
+                                    <div class="demo-box">
+                                        @Html.Raw(item.Content)
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="col-lg-6">
+                            <h3 class="h5 text-success">Safe stored render</h3>
+
+                            <div class="alert alert-success">
+                                <strong>Açıklama:</strong><br />
+                                Burada veritabanındaki aynı kayıt bu kez <code>@@item.Content</code> ile gösteriliyor.
+                                Razor çıktıyı encode ettiği için içerik HTML/JavaScript olarak çalıştırılmıyor,
+                                sadece metin olarak gösteriliyor. Yani veri veritabanında zararlı olsa bile
+                                çıktı güvenli işlendiği için XSS tetiklenmiyor.
+                            </div>
+
+                            @foreach (var item in Model.StoredEntries)
+                            {
+                                <div class="border rounded p-3 mb-3 bg-light">
+                                    <div>
+                                        <div><strong>Title:</strong> @item.Title</div>
+                                        <div><strong>CreatedAtUtc:</strong> @item.CreatedAtUtc</div>
+                                    </div>
+
+                                    <hr />
+                                    <div class="demo-box">
+                                        @item.Content
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-secondary mt-3">
+                        No stored entries yet.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- DOM XSS -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger-subtle">
+                <h2 class="h4 mb-0">3) DOM XSS</h2>
+            </div>
+            <div class="card-body">
+                <p>
+                    DOM XSS senaryosunda veri sunucuda render edilmekten çok, tarayıcı tarafındaki JavaScript tarafından işlenir.
+                    Buradaki risk çoğunlukla tehlikeli DOM sink'lerinden kaynaklanır.
+                </p>
+
+                <p>
+                    Test with query string:
+                </p>
+                <pre>?domInput=&lt;img src=x onerror=alert('dom-xss')&gt;</pre>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current DOM input</label>
+                    <input id="domInputBox" class="form-control" value="@Model.DomInput" />
+                </div>
+
+                <div class="mb-3">
+                    <button type="button" id="runDomDemo" class="btn btn-dark">Run DOM Demo</button>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded bg-light h-100">
+                            <h3 class="h5 text-danger">Unsafe DOM render</h3>
+
+                            <div class="alert alert-danger">
+                                <strong>Açıklama:</strong><br />
+                                Burada JavaScript tarafında kullanıcı girdisi <code>innerHTML</code> ile DOM içine yazılıyor.
+                                <code>innerHTML</code> gelen değeri HTML gibi yorumladığı için zararlı içerik çalışabilir.
+                                Yani burada sorun sunucu tarafında değil, istemci tarafındaki DOM işleme yöntemindedir.
+                            </div>
+
+                            <div id="domUnsafeTarget" class="demo-box"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded bg-light h-100">
+                            <h3 class="h5 text-success">Safe DOM render</h3>
+
+                            <div class="alert alert-success">
+                                <strong>Açıklama:</strong><br />
+                                Burada aynı veri <code>textContent</code> ile DOM içine yazılıyor.
+                                <code>textContent</code> veriyi HTML olarak yorumlamaz, düz metin olarak yerleştirir.
+                                Bu nedenle payload çalışmaz ve sadece yazı gibi görünür.
+                            </div>
+
+                            <div id="domSafeTarget" class="demo-box"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-3 mb-0">
+                    The unsafe DOM example uses <code>innerHTML</code>. The safe DOM example uses <code>textContent</code>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GENEL AÇIKLAMA -->
+    <div class="col-12">
+        <div class="card shadow-sm border-dark">
+            <div class="card-header bg-dark text-white">
+                <h2 class="h4 mb-0">Genel Açıklama - Bu Sayfada Ne Yapıldı?</h2>
+            </div>
+            <div class="card-body">
+                <p>
+                    Bu sayfada XSS'in en yaygın üç türü olan <strong>Reflected XSS</strong>,
+                    <strong>Stored XSS</strong> ve <strong>DOM XSS</strong> hem zafiyetli hem de zafiyetsiz örneklerle gösterildi.
+                </p>
+
+                <h3 class="h5 mt-4">1) Reflected XSS</h3>
+                <p>
+                    Reflected XSS'te kullanıcıdan gelen veri genellikle URL parametresi veya query string üzerinden alınır
+                    ve aynı istek içerisinde tekrar kullanıcıya gösterilir.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Zafiyetli kullanım:</strong> Veri <code>Html.Raw(...)</code> ile doğrudan HTML olarak işlendiği için
+                        tarayıcı bunu çalıştırabilir.
+                    </li>
+                    <li>
+                        <strong>Güvenli kullanım:</strong> Veri normal Razor çıktısı ile basıldığında encode edilir ve
+                        çalıştırılmaz, sadece düz metin olarak görünür.
+                    </li>
+                </ul>
+
+                <h3 class="h5 mt-4">2) Stored XSS</h3>
+                <p>
+                    Stored XSS'te saldırgan veri önce sisteme kaydettirir. Daha sonra başka kullanıcılar veya aynı kullanıcı
+                    ilgili sayfayı açtığında bu veri yeniden ekrana gelir.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Zafiyetli kullanım:</strong> Kayıtlı veri <code>Html.Raw(...)</code> ile HTML gibi işlendiğinde,
+                        veritabanındaki payload tekrar tekrar çalışabilir.
+                    </li>
+                    <li>
+                        <strong>Güvenli kullanım:</strong> Kayıtlı veri encode edilerek gösterilirse script çalışmaz,
+                        yalnızca metin gibi görünür.
+                    </li>
+                </ul>
+
+                <h3 class="h5 mt-4">3) DOM XSS</h3>
+                <p>
+                    DOM XSS'te açık çoğu zaman sunucu tarafında değil, JavaScript tarafında ortaya çıkar.
+                    Veri tarayıcıda işlendiği sırada tehlikeli bir DOM API kullanılırsa payload çalışabilir.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Zafiyetli kullanım:</strong> <code>innerHTML</code> kullanımı gelen veriyi HTML olarak yorumladığı için risklidir.
+                    </li>
+                    <li>
+                        <strong>Güvenli kullanım:</strong> <code>textContent</code> veriyi düz metin olarak yerleştirir,
+                        bu yüzden içerik kod gibi çalışmaz.
+                    </li>
+                </ul>
+
+                <h3 class="h5 mt-4">Bu sayfadaki temel ders</h3>
+                <p>
+                    Kullanıcıdan gelen verinin tehlikeli olup olmaması kadar, o verinin <strong>nasıl işlendiği</strong> de önemlidir.
+                    Aynı veri yanlış yerde ve yanlış yöntemle kullanılırsa XSS oluşur; doğru encode edilirse veya güvenli DOM yöntemiyle
+                    işlenirse XSS oluşmaz.
+                </p>
+
+                <h3 class="h5 mt-4">Özet</h3>
+                <ul>
+                    <li><strong>Html.Raw</strong> → dikkat edilmezse XSS'e yol açabilir.</li>
+                    <li><strong>Normal Razor çıktısı</strong> → encode ettiği için daha güvenlidir.</li>
+                    <li><strong>innerHTML</strong> → DOM XSS açısından risklidir.</li>
+                    <li><strong>textContent</strong> → güvenli DOM kullanımına örnektir.</li>
+                    <li><strong>Veri kaydediliyor olması</strong> Stored XSS riskini büyütür.</li>
+                    <li><strong>Veri sadece aynı istekte dönüyorsa</strong> bu daha çok Reflected XSS senaryosudur.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            const runButton = document.getElementById('runDomDemo');
+            const inputBox = document.getElementById('domInputBox');
+            const unsafeTarget = document.getElementById('domUnsafeTarget');
+            const safeTarget = document.getElementById('domSafeTarget');
+
+            function runDomDemo() {
+                const value = inputBox.value || '';
+
+                unsafeTarget.innerHTML = value;
+                safeTarget.textContent = value;
+            }
+
+            if (runButton) {
+                runButton.addEventListener('click', runDomDemo);
+            }
+
+            runDomDemo();
+        })();
+    </script>
+}
