@@ -1,6 +1,6 @@
 # VulnWebPage — XSS training lab
 
-ASP.NET Core MVC (.NET 8) examples comparing vulnerable and safer output rendering. This project is **intentionally vulnerable** and intended only for local, isolated security education.
+ASP.NET Core MVC (.NET 10 LTS) examples comparing vulnerable and safer output rendering. This project is **intentionally vulnerable** and intended only for local, isolated security education.
 
 ## Exercises
 
@@ -35,7 +35,7 @@ The website is published only on the host loopback interface, while SQL Server r
 
 ## Run without Docker
 
-Install .NET SDK 8 and a local SQL Server. Configure `ConnectionStrings__DefaultConnection` as an environment variable (or user secret) pointing at a disposable test database; then run:
+Install .NET SDK 10 and a local SQL Server. Configure `ConnectionStrings__DefaultConnection` as an environment variable (or user secret) pointing at a disposable test database; then run:
 
 ```sh
 dotnet restore
