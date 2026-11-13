@@ -1,0 +1,56 @@
+@model vulnerablewebpage.Models.MassAssignmentLabViewModel
+@{
+    ViewData["Title"] = "Mass assignment";
+}
+
+<nav aria-label="Breadcrumb" class="mb-3"><a href="/labs/">← Back to all exercises</a></nav>
+<div class="lab-module-heading">
+    <span class="lab-kicker">Input binding · Exercise 08</span>
+    <h1>Mass assignment / overposting</h1>
+    <p class="lead">See why copying every submitted field into a domain object can change fields that the user should not control.</p>
+</div>
+<div class="alert alert-warning" role="note">This is a synthetic, request-local profile. No account, permission or database record is changed.</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <form method="post" action="/labs/mass-assignment" class="card shadow-sm">
+            @Html.AntiForgeryToken()
+            <div class="card-body">
+                <label for="displayName" class="form-label fw-semibold">Allowed profile field · display name</label>
+                <input id="displayName" name="displayName" type="text" maxlength="40" required class="form-control mb-3" value="@Model.DisplayName" />
+                <div class="form-check mb-3">
+                    <input id="isAdmin" name="isAdmin" value="true" class="form-check-input" type="checkbox" checked="@Model.RequestedAdmin" />
+                    <label for="isAdmin" class="form-check-label">Inject extra form field: <code>IsAdmin=true</code></label>
+                </div>
+                <label for="mode" class="form-label fw-semibold">Binding mode</label>
+                <select id="mode" name="mode" class="form-select mb-3">
+                    <option value="unsafe" selected="@(!Model.Secure)">Unsafe · accept the extra role field</option>
+                    <option value="safe" selected="@(Model.Secure)">Safer · allowlist display name only</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Submit simulated update</button>
+            </div>
+        </form>
+        @if (Model.Submitted)
+        {
+            <div class="alert @(Model.Secure ? "alert-success" : "alert-danger") mt-3" data-testid="mass-outcome">@Model.Outcome</div>
+            <div class="lab-result" data-testid="mass-profile">
+                <div><strong>Display name:</strong> @Model.DisplayName</div>
+                <div><strong>IsAdmin:</strong> <code>@Model.ResultAdmin.ToString().ToLowerInvariant()</code></div>
+            </div>
+        }
+    </div>
+    <aside class="col-lg-5">
+        <section class="card h-100">
+            <div class="card-body">
+                <h2 class="h5">What to verify</h2>
+                <ol>
+                    <li>Tick <code>IsAdmin=true</code>.</li>
+                    <li>Submit using unsafe binding and inspect the returned role.</li>
+                    <li>Switch to safer binding without changing the checkbox.</li>
+                    <li>Explain why field allowlisting is independent of client-side controls.</li>
+                </ol>
+                <p class="mb-0">In real systems, privileged properties must be assigned by trusted server-side authorization logic, not merely hidden in a form.</p>
+            </div>
+        </section>
+    </aside>
+</div>

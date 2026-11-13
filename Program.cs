@@ -9,6 +9,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
+if (!app.Environment.IsEnvironment("Lab"))
+{
+    throw new InvalidOperationException(
+        "This intentionally vulnerable application runs only with ASPNETCORE_ENVIRONMENT=Lab. " +
+        "Do not deploy it to shared, public, or production infrastructure.");
+}
+
 // A new SQL Server container may need time to initialize.
 using (var scope = app.Services.CreateScope())
 {

@@ -1,0 +1,59 @@
+@model vulnerablewebpage.Models.PathTraversalLabViewModel
+@{
+    ViewData["Title"] = "Path traversal";
+}
+
+<nav aria-label="Breadcrumb" class="mb-3"><a href="/labs/">← Back to all exercises</a></nav>
+<div class="lab-module-heading">
+    <span class="lab-kicker">File access · Exercise 07</span>
+    <h1>Path traversal</h1>
+    <p class="lead">Compare path concatenation with canonical path confinement using only virtual document fixtures.</p>
+</div>
+
+<div class="alert alert-warning" role="note">No operating-system file is opened. The application uses an in-memory dictionary with one simulated internal file.</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <form action="/labs/path-traversal" method="get" class="card shadow-sm">
+            <div class="card-body">
+                <label for="path" class="form-label fw-semibold">Document path</label>
+                <input id="path" name="path" class="form-control font-monospace" type="text" value="@Model.RequestedPath" maxlength="100" required />
+                <p class="form-text">Try readme.txt, guide.txt or ../internal/config.txt.</p>
+                <label for="mode" class="form-label fw-semibold">Security mode</label>
+                <select name="mode" id="mode" class="form-select mb-3">
+                    <option value="unsafe" selected="@(!Model.Secure)">Unsafe · normalize without root validation</option>
+                    <option value="safe" selected="@(Model.Secure)">Safer · verify canonical path stays in /public/</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Read virtual file</button>
+            </div>
+        </form>
+
+        <div class="alert @(Model.Secure ? "alert-success" : "alert-danger") mt-3" data-testid="path-outcome">@Model.Outcome</div>
+        @if (Model.ResolvedPath is not null)
+        {
+            <p data-testid="path-normalized"><strong>Normalized virtual path:</strong> <code>@Model.ResolvedPath</code></p>
+        }
+        @if (Model.Contents is not null)
+        {
+            <div class="lab-result" data-testid="path-content"><code>@Model.Contents</code></div>
+        }
+    </div>
+    <aside class="col-lg-5">
+        <section class="card h-100">
+            <div class="card-body">
+                <h2 class="h5">What to verify</h2>
+                <ol>
+                    <li>Read a normal public document.</li>
+                    <li>Use <code>../internal/config.txt</code> in unsafe mode.</li>
+                    <li>Repeat the identical path in safe mode.</li>
+                    <li>Explain why checking the normalized path matters.</li>
+                </ol>
+                <p class="mb-1 fw-semibold">Quick comparisons</p>
+                <a href="/labs/path-traversal?path=..%2Finternal%2Fconfig.txt&amp;mode=unsafe">Unsafe traversal</a>
+                <span aria-hidden="true">·</span>
+                <a href="/labs/path-traversal?path=..%2Finternal%2Fconfig.txt&amp;mode=safe">Blocked traversal</a>
+            </div>
+        </section>
+    </aside>
+</div>
+<p class="text-muted mt-4">Real file-serving applications also need to consider symbolic links, encoding, race conditions, Windows paths and filesystem permissions. This exercise does not implement those behaviors.</p>

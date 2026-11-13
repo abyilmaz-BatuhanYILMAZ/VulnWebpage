@@ -3,27 +3,36 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] | Application Security Lab</title>
+    <meta name="theme-color" content="#101b36" />
+    <title>@ViewData["Title"] | VulnWebPage Security Lab</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <nav class="navbar navbar-expand navbar-dark bg-dark">
-        <div class="container flex-wrap gap-2">
-            <a class="navbar-brand" href="/">Security Lab</a>
-            <div class="d-flex gap-3 flex-wrap">
-                <a class="nav-link text-white" href="/">XSS</a>
-                <a class="nav-link text-white" href="/labs/">Exercises</a>
-                <a class="nav-link text-white" href="/labs/authorization">IDOR / BOLA</a>
-                <a class="nav-link text-white" href="/labs/sql-injection">SQL Injection</a>
-                <a class="nav-link text-white" href="/labs/ssrf">SSRF</a>
+    <header class="site-nav">
+        <nav class="container d-flex flex-wrap align-items-center gap-2 py-3" aria-label="Primary navigation">
+            <a class="site-brand me-2" href="/labs/">VulnWebPage <span class="text-info">/ Lab</span></a>
+            <div class="d-flex flex-wrap gap-1 ms-lg-auto">
+                <a class="nav-link" href="/labs/">Overview</a>
+                <a class="nav-link" href="/?csp=off">XSS</a>
+                <a class="nav-link" href="/labs/authorization">IDOR / BOLA</a>
+                <a class="nav-link" href="/labs/sql-injection">SQLi</a>
+                <a class="nav-link" href="/labs/ssrf">SSRF</a>
+                <a class="nav-link" href="/labs/path-traversal">Traversal</a>
+                <a class="nav-link" href="/labs/mass-assignment">Overposting</a>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-    <main class="container py-4">
+    <main class="container py-4" id="main-content">
         @RenderBody()
     </main>
+    <footer class="site-footer">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>Local security training lab · All examples use synthetic data.</span>
+            <a href="https://github.com/abyilmaz-BatuhanYILMAZ/VulnWebpage" target="_blank" rel="noopener noreferrer">Repository and documentation</a>
+        </div>
+    </footer>
 
     @RenderSection("Scripts", required: false)
 </body>

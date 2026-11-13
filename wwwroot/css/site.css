@@ -1,22 +1,49 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 60px;
-}
+html{font-size:15px;min-height:100%}
+@media(min-width:768px){html{font-size:16px}}
+body{background:#f5f7fb;color:#1b2540;min-height:100vh;margin:0}
+a{color:#3147aa}
+a:hover{color:#192e87}
+:focus-visible{outline:3px solid #db9a35!important;outline-offset:3px}
+.site-nav{background:#101b36;border-bottom:1px solid #253859}
+.site-brand{font-weight:800;letter-spacing:-.02em;text-decoration:none;color:#fff;font-size:1.12rem}
+.site-brand:hover{color:#e0eaff}
+.site-nav .nav-link{display:inline-block;color:#d7def0;text-decoration:none;padding:.44rem .65rem;border-radius:7px}
+.site-nav .nav-link:hover,.site-nav .nav-link:focus-visible{background:#2c3d60;color:#fff}
+.site-footer{margin-top:3rem;border-top:1px solid #dde3f1;color:#52617b;padding:1rem 0 1.8rem;font-size:.87rem}
+.site-footer a{color:#3147aa}
+.lab-hero{border-radius:20px;background:linear-gradient(117deg,#101b37,#1b3267 72%,#354a90);padding:clamp(22px,5vw,45px);color:#fff;margin-bottom:20px;box-shadow:0 16px 35px #14274a17}
+.lab-hero h1{font-weight:800;letter-spacing:-.035em;font-size:clamp(2rem,5vw,3.25rem);margin:.3rem 0 .65rem}
+.lab-hero p{max-width:780px;color:#e0e8fa;font-size:1.09rem}
+.lab-kicker{font-size:.79rem;text-transform:uppercase;letter-spacing:.13em;font-weight:800;color:#5373ce}
+.lab-hero .lab-kicker{color:#a8c4fa}
+.lab-hero-metrics{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.lab-hero-metrics span{border:1px solid #ffffff55;border-radius:100px;padding:7px 13px;font-size:.9rem;background:#ffffff13}
+.lab-alert{border:1px solid #f1d8a4;background:#fff7e7;border-left:5px solid #bd831e;color:#4e3611;padding:14px 18px;border-radius:11px;margin-bottom:24px}
+.lab-progress-section,.lab-learning{background:#fff;border:1px solid #dfe5f0;border-radius:16px;padding:22px;margin:22px 0}
+.lab-progress-section h2,.lab-learning h2{font-size:1.3rem;font-weight:750}
+.lab-progress-section .progress{height:12px;background:#e9eef9}
+.lab-progress-section .progress-bar{background:linear-gradient(90deg,#3966c7,#519bd0)}
+.lab-section-title{margin:28px 0 16px}
+.lab-section-title h2{font-size:1.5rem;font-weight:750}
+.lab-section-title p{color:#52617b}
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:17px}
+.lab-card{display:flex;flex-direction:column;border:1px solid #d7dfee;background:#fff;border-radius:16px;padding:23px;min-height:262px;box-shadow:0 3px 16px #1b2e520a;transition:transform .18s,box-shadow .18s}
+.lab-card:hover{transform:translateY(-2px);box-shadow:0 12px 26px #13294e1a}
+.lab-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:8px}
+.lab-card-index{font-size:1.7rem;font-weight:850;letter-spacing:-.05em;color:#cad5e8}
+.lab-tag{font-size:.77rem;font-weight:700;border-radius:50px;background:#eaf0ff;color:#38569c;padding:6px 10px}
+.lab-card h3{font-size:1.28rem;font-weight:760;letter-spacing:-.02em}
+.lab-card p{color:#5b6880;font-size:.95rem}
+.lab-card-footer{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.lab-card-footer label{display:flex;align-items:center;gap:7px;white-space:nowrap;font-size:.85rem;color:#3e4d65;cursor:pointer}
+.lab-card-footer input{accent-color:#3d62b8;width:17px;height:17px}
+.lab-card .btn-primary{background:#24488e;border-color:#24488e}
+.lab-card .btn-primary:hover{background:#19376d}
+.lab-module-heading{margin-bottom:18px}
+.lab-module-heading h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:780;letter-spacing:-.025em}
+.lab-module-heading .lead{color:#4d5a73}
+.lab-result{padding:17px 18px;border:1px solid #cbdaf0;background:#f3f7ff;border-radius:12px;overflow-wrap:anywhere}
+.card{border-color:#d7dfee}
+.card-body{line-height:1.55}
+.demo-box{overflow-wrap:anywhere}
+@media(max-width:680px){.lab-card{min-height:0}.lab-progress-section,.lab-learning{padding:17px}.site-nav .nav-link{font-size:.88rem}}

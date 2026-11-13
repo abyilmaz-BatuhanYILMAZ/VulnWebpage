@@ -20,6 +20,13 @@ jobs:
           printf 'MSSQL_SA_PASSWORD=LabA!%s\n' "$(openssl rand -hex 24)" > .env
           docker compose up --build -d
           curl --fail --silent --show-error --retry 90 --retry-delay 2 --retry-all-errors --retry-connrefused http://127.0.0.1:8080/ > /dev/null
+      - name: Confirm the lab refuses Production startup
+        run: |
+          if docker run --rm --network none -e ASPNETCORE_ENVIRONMENT=Production vulnwebpage-web:latest > /tmp/lab-guard.log 2>&1; then
+            echo "Unexpected Production startup of a vulnerable training application"
+            exit 1
+          fi
+          grep -F "ASPNETCORE_ENVIRONMENT=Lab" /tmp/lab-guard.log
       - name: Install browser test dependencies
         run: |
           npm install --no-audit --no-fund

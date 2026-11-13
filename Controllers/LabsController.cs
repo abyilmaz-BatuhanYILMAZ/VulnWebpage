@@ -23,6 +23,28 @@ public sealed class LabsController : Controller
         return View(IsolatedTrainingScenarios.SearchInventory(term, secure));
     }
 
+    [HttpGet("path-traversal")]
+    public IActionResult PathTraversal(string? path = "../internal/config.txt", string? mode = "unsafe")
+    {
+        var secure = string.Equals(mode, "safe", StringComparison.OrdinalIgnoreCase);
+        return View(AdditionalTrainingScenarios.ReadVirtualFile(path, secure));
+    }
+
+    [HttpGet("mass-assignment")]
+    public IActionResult MassAssignment() => View(new vulnerablewebpage.Models.MassAssignmentLabViewModel());
+
+    [HttpPost("mass-assignment")]
+    [ValidateAntiForgeryToken]
+    public IActionResult MassAssignmentSubmit(
+        [FromForm] string? displayName,
+        [FromForm] bool isAdmin,
+        [FromForm] string? mode)
+    {
+        var secure = string.Equals(mode, "safe", StringComparison.OrdinalIgnoreCase);
+        return View("MassAssignment",
+            AdditionalTrainingScenarios.UpdateSyntheticProfile(displayName, isAdmin, secure));
+    }
+
     [HttpGet("ssrf")]
     public IActionResult Ssrf(string? url = "http://internal.lab.invalid/admin", string? mode = "unsafe")
     {

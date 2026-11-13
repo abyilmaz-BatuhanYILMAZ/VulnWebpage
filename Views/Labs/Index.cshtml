@@ -1,42 +1,113 @@
 @{
-    ViewData["Title"] = "Security exercises";
+    ViewData["Title"] = "Application security exercises";
 }
-<section class="alert alert-warning" role="alert">
-    <strong>Local training environment only.</strong>
-    The exercises deliberately show unsafe implementations. Use only the Docker loopback service and synthetic data.
+
+<section class="lab-hero" aria-labelledby="lab-title">
+    <div class="lab-kicker">LOCAL APPLICATION SECURITY LAB</div>
+    <h1 id="lab-title">Application security exercises</h1>
+    <p>Explore an unsafe behavior, reproduce it with synthetic data, then compare the safer implementation. Each module includes an explanation and a repeatable browser test.</p>
+    <div class="lab-hero-metrics">
+        <span><strong>6</strong> modules</span>
+        <span><strong>8</strong> vulnerable scenarios</span>
+        <span><strong>.NET 10</strong> LTS</span>
+        <span>Offline-friendly lab fixtures</span>
+    </div>
 </section>
 
-<h1>Application security exercises</h1>
-<p class="lead">Compare a vulnerable implementation with an explicit authorization, query, or outbound-request control. The exercises are independent of the existing XSS lab.</p>
-
-<div class="row g-4">
-    <article class="col-lg-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="h4">IDOR / BOLA</h2>
-                <p>Retrieve a synthetic document by ID, then repeat the request with ownership validation.</p>
-                <a class="btn btn-primary" href="/labs/authorization">Open authorization exercise</a>
-            </div>
-        </div>
-    </article>
-    <article class="col-lg-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="h4">SQL injection</h2>
-                <p>Contrast string-built SQL with parameterized queries in a read-only, in-memory fixture.</p>
-                <a class="btn btn-primary" href="/labs/sql-injection">Open SQL exercise</a>
-            </div>
-        </div>
-    </article>
-    <article class="col-lg-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="h4">SSRF</h2>
-                <p>Observe a simulated internal destination being accepted, then blocked by a strict URL allowlist.</p>
-                <a class="btn btn-primary" href="/labs/ssrf">Open SSRF exercise</a>
-            </div>
-        </div>
-    </article>
+<div class="lab-alert" role="note">
+    <strong>Local-only, deliberately vulnerable application.</strong>
+    Run through Docker's <code>127.0.0.1:8080</code> binding. Use synthetic inputs only; never forward the port to the Internet.
 </div>
 
-<p class="mt-4"><a href="/">Return to the XSS exercises</a></p>
+<section class="lab-progress-section" aria-labelledby="lab-progress-title">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h2 id="lab-progress-title">Your practice checklist</h2>
+            <p class="text-muted mb-2">Manually mark a module after reviewing both modes. Completion is saved in this browser only; it is not a graded assessment.</p>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-progress-reset>Reset progress</button>
+    </div>
+    <div class="progress" role="progressbar" aria-label="Modules completed" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" data-progress-bar>
+        <div class="progress-bar" style="width:0%" data-progress-fill></div>
+    </div>
+    <p class="mt-2 mb-0 fw-semibold" data-progress-label aria-live="polite">0 / 6 modules marked complete</p>
+</section>
+
+<section aria-labelledby="lab-module-title">
+    <div class="lab-section-title">
+        <h2 id="lab-module-title">Choose a module</h2>
+        <p>Start with the unsafe example, predict the outcome, and repeat it in the defensive mode.</p>
+    </div>
+    <div class="lab-grid">
+        <article class="lab-card" data-lab-id="xss" data-testid="lab-card">
+            <div class="lab-card-top"><span class="lab-card-index">01</span><span class="lab-tag">Browser</span></div>
+            <h3>Cross-site scripting</h3>
+            <p>Reflected, stored and DOM injection, compared with output encoding and CSP.</p>
+            <div class="lab-card-footer">
+                <a href="/?csp=off" class="btn btn-primary">Explore XSS</a>
+                <label><input type="checkbox" data-progress-check="xss" /> Reviewed</label>
+            </div>
+        </article>
+        <article class="lab-card" data-lab-id="authorization" data-testid="lab-card">
+            <div class="lab-card-top"><span class="lab-card-index">02</span><span class="lab-tag">Access control</span></div>
+            <h3>IDOR / BOLA</h3>
+            <p>Compare object lookup by ID alone with ownership enforcement on synthetic documents.</p>
+            <div class="lab-card-footer">
+                <a href="/labs/authorization" class="btn btn-primary">Explore BOLA</a>
+                <label><input type="checkbox" data-progress-check="authorization" /> Reviewed</label>
+            </div>
+        </article>
+        <article class="lab-card" data-lab-id="sql-injection" data-testid="lab-card">
+            <div class="lab-card-top"><span class="lab-card-index">03</span><span class="lab-tag">Database</span></div>
+            <h3>SQL injection</h3>
+            <p>Build an unsafe query in disposable SQLite and compare it with parameter binding.</p>
+            <div class="lab-card-footer">
+                <a href="/labs/sql-injection" class="btn btn-primary">Explore SQLi</a>
+                <label><input type="checkbox" data-progress-check="sql-injection" /> Reviewed</label>
+            </div>
+        </article>
+        <article class="lab-card" data-lab-id="ssrf" data-testid="lab-card">
+            <div class="lab-card-top"><span class="lab-card-index">04</span><span class="lab-tag">Network trust</span></div>
+            <h3>SSRF simulation</h3>
+            <p>Compare untrusted destination selection with a strict HTTPS allowlist, without real requests.</p>
+            <div class="lab-card-footer">
+                <a href="/labs/ssrf" class="btn btn-primary">Explore SSRF</a>
+                <label><input type="checkbox" data-progress-check="ssrf" /> Reviewed</label>
+            </div>
+        </article>
+        <article class="lab-card" data-lab-id="path-traversal" data-testid="lab-card">
+            <div class="lab-card-top"><span class="lab-card-index">05</span><span class="lab-tag">File access</span></div>
+            <h3>Path traversal</h3>
+            <p>Watch a virtual path escape a document root, then block it after canonicalization.</p>
+            <div class="lab-card-footer">
+                <a href="/labs/path-traversal" class="btn btn-primary">Explore traversal</a>
+                <label><input type="checkbox" data-progress-check="path-traversal" /> Reviewed</label>
+            </div>
+        </article>
+        <article class="lab-card" data-lab-id="mass-assignment" data-testid="lab-card">
+            <div class="lab-card-top"><span class="lab-card-index">06</span><span class="lab-tag">Input binding</span></div>
+            <h3>Mass assignment</h3>
+            <p>See how an extra posted field changes a simulated role and why an explicit allowlist matters.</p>
+            <div class="lab-card-footer">
+                <a href="/labs/mass-assignment" class="btn btn-primary">Explore overposting</a>
+                <label><input type="checkbox" data-progress-check="mass-assignment" /> Reviewed</label>
+            </div>
+        </article>
+    </div>
+</section>
+
+<section class="lab-learning" aria-labelledby="lab-method-title">
+    <h2 id="lab-method-title">A repeatable learning method</h2>
+    <ol>
+        <li><strong>Predict:</strong> decide what the unsafe implementation will return.</li>
+        <li><strong>Reproduce:</strong> run the supplied harmless fixture and inspect the response.</li>
+        <li><strong>Compare:</strong> keep the input identical and switch to safe mode.</li>
+        <li><strong>Explain:</strong> identify the trust boundary, the root cause, and the defense.</li>
+        <li><strong>Verify:</strong> check the automated browser assertions or create a new test.</li>
+    </ol>
+    <p class="mb-0">Source documentation: <a href="https://github.com/abyilmaz-BatuhanYILMAZ/VulnWebpage/blob/master/docs/ADDITIONAL-LABS.md" target="_blank" rel="noopener noreferrer">additional lab notes</a> and <a href="https://github.com/abyilmaz-BatuhanYILMAZ/VulnWebpage/blob/master/docs/XSS-SECURITY-NOTES.md" target="_blank" rel="noopener noreferrer">XSS security notes</a>.</p>
+</section>
+
+@section Scripts {
+    <script src="~/js/lab-progress.js" asp-append-version="true"></script>
+}
