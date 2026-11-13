@@ -1,0 +1,23 @@
+services:
+  web:
+    build: .
+    environment:
+      ASPNETCORE_ENVIRONMENT: Lab
+      LAB_DB_RETRY: "true"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=VulnerableWebPageDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:?Set a strong local database password in .env};Encrypt=True;TrustServerCertificate=True"
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - sqlserver
+    restart: "no"
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?Set a strong local database password in .env}"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    restart: "no"
+volumes:
+  sqlserver-data:

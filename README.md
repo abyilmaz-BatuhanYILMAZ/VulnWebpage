@@ -1,96 +1,69 @@
-# VulnWebPage
+# VulnWebPage — XSS training lab
 
-A small ASP.NET Core MVC lab project that demonstrates three common XSS categories in both unsafe and safer implementations:
+ASP.NET Core MVC (.NET 8) examples comparing vulnerable and safer output rendering. This project is **intentionally vulnerable** and intended only for local, isolated security education.
 
-- Reflected XSS
-- Stored XSS
-- DOM-based XSS
+## Exercises
 
-The goal of this project is to understand how XSS appears in real application flows, how different rendering patterns affect browser behavior, and how safer output handling changes the result.
+| Type | Unsafe output | Safer output |
+| --- | --- | --- |
+| Reflected XSS | `Html.Raw(Model.ReflectedInput)` | Razor-encoded text |
+| Stored XSS | `Html.Raw(item.Content)` | Razor-encoded text |
+| DOM XSS | `innerHTML` | `textContent` |
+| Defense in depth | `/?csp=off` | `/?csp=strict` |
 
-## Tech Stack
+CSP enforcement blocks inline JavaScript in the example but **does not fix unsafe rendering**.
 
-- ASP.NET Core MVC (.NET 8)
-- Entity Framework Core
-- SQL Server
-- Razor Views
-- Bootstrap 5
+## Docker setup
 
-## Project Purpose
+Requires Docker Compose, a modern browser and enough available memory for SQL Server.
 
-This repository was built as a hands-on learning project to compare vulnerable and safer rendering patterns in one simple web application.
+1. Copy `.env.example` to `.env` and replace the sample password with a strong, unique local value.
+2. Start:
 
-Instead of explaining XSS only theoretically, the project shows how the same user-controlled input behaves differently depending on how it is processed and rendered.
+```sh
+docker compose up --build -d
+```
 
-## Covered Scenarios
+3. Open [the local lab](http://127.0.0.1:8080/?csp=off), then select **CSP Enforced** to compare outcomes.
+4. Stop and remove the disposable database:
 
-### 1. Reflected XSS
-Input is received from the query string and rendered back to the page in the same request.
+```sh
+docker compose down --volumes
+```
 
-- Unsafe example: untrusted input is rendered as raw HTML
-- Safer example: untrusted input is rendered through Razor’s default encoded output
+The website is published only on the host loopback interface, while SQL Server remains internal to the Docker network. Do not forward or publicly host this application.
 
-### 2. Stored XSS
-Input is saved in the database and later displayed again.
+## Run without Docker
 
-- Unsafe example: stored content is rendered as raw HTML
-- Safer example: stored content is rendered as encoded text
+Install .NET SDK 8 and a local SQL Server. Configure `ConnectionStrings__DefaultConnection` as an environment variable (or user secret) pointing at a disposable test database; then run:
 
-### 3. DOM XSS
-Input is handled in the browser by JavaScript.
+```sh
+dotnet restore
+dotnet run --project vulnerablewebpage.csproj
+```
 
-- Unsafe example: user-controlled data is written with `innerHTML`
-- Safer example: user-controlled data is written with `textContent`
+The application creates the schema in the configured database at startup. Do not point it to an existing production database.
 
-## Why the Unsafe Versions Are Vulnerable
+## Browser regression tests
 
-The unsafe examples use dangerous rendering patterns that allow the browser to interpret attacker-controlled input as active HTML or JavaScript.
+Requires Node.js 22+, Chromium and a running lab instance:
 
-Examples:
-- `Html.Raw(...)`
-- `innerHTML`
+```sh
+npm install
+npx playwright install chromium
+npm run test:browser
+```
 
-These patterns may lead to script execution when malicious payloads are supplied.
+Playwright checks reflected, stored and DOM behaviors and the strict CSP response. GitHub Actions runs the suite in disposable containers. See [security notes](docs/XSS-SECURITY-NOTES.md) for limitations.
 
-## Why the Safer Versions Do Not Trigger XSS in the Same Way
+## Key files
 
-The safer examples rely on output encoding or safer DOM APIs.
+- `Controllers/XssLabController.cs`: input collection and stored records
+- `Views/XssLab/Index.cshtml`: side-by-side rendering cases
+- `wwwroot/js/xss-lab.js`: browser DOM demonstration
+- `Program.cs`: database startup and CSP switch
+- `compose.yaml` and `Dockerfile`: local runtime
+- `tests/browser.spec.mjs`: browser tests
+- `docs/XSS-SECURITY-NOTES.md`: threat model and verification
 
-Examples:
-- Razor encoded output such as `@Model.Property`
-- `textContent` instead of `innerHTML`
-
-These approaches prevent the browser from treating input as executable code.
-
-## Project Structure
-
-- `Controllers/XssLabController.cs`  
-  Handles reflected input, stored entry creation, and stored entry deletion.
-
-- `Data/ApplicationDbContext.cs`  
-  EF Core database context.
-
-- `Models/XssEntry.cs`  
-  Entity used to store XSS test entries.
-
-- `Models/XssLabPageViewModel.cs`  
-  View model used by the main lab page.
-
-- `Views/XssLab/Index.cshtml`  
-  Main page that displays reflected, stored, and DOM XSS sections.
-
-- `Program.cs`  
-  Application startup and service registration.
-
-## How to Run
-
-### 1. Configure the connection string
-
-Edit `appsettings.json` and set your SQL Server connection string:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=VulnerableWebPageDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
-  }
-}
+Use only against systems that you own or are authorized to test.

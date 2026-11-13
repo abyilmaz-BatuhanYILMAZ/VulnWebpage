@@ -11,6 +11,22 @@
     </p>
 </div>
 
+<div class="alert alert-secondary" role="status" id="csp-status">
+    <strong>Content Security Policy:</strong>
+    @if (string.Equals(Context.Request.Query["csp"].ToString(), "strict", StringComparison.OrdinalIgnoreCase))
+    {
+        <span>Enforced — inline event handlers and injected scripts are blocked by the browser.</span>
+    }
+    else
+    {
+        <span>Off — unsafe examples can execute. Use only in the local lab.</span>
+    }
+    <div class="mt-2">
+        <a class="btn btn-sm btn-outline-secondary" href="/?csp=off" id="csp-off">CSP Off</a>
+        <a class="btn btn-sm btn-outline-primary" href="/?csp=strict" id="csp-strict">CSP Enforced</a>
+    </div>
+</div>
+
 <div class="row g-4">
 
     <!-- REFLECTED XSS -->
@@ -26,6 +42,7 @@
                 </p>
 
                 <form asp-controller="XssLab" asp-action="Index" method="get" class="mb-4">
+                    <input type="hidden" name="csp" value="@(string.Equals(Context.Request.Query["csp"].ToString(), "strict", StringComparison.OrdinalIgnoreCase) ? "strict" : "off")" />
                     <div class="mb-3">
                         <label for="reflectedInput" class="form-label fw-bold">Reflected Input</label>
                         <input type="text" id="reflectedInput" name="reflectedInput" class="form-control" value="@Model.ReflectedInput" />
@@ -56,7 +73,7 @@
                                 Eğer zararlı bir payload verilirse script çalışabilir.
                             </div>
 
-                            <div class="demo-box">
+                            <div class="demo-box" data-testid="unsafe-reflected-output">
                                 @Html.Raw(Model.ReflectedInput)
                             </div>
                         </div>
@@ -73,7 +90,7 @@
                                 düz metin olarak görür. Bu yüzden script çalışmaz.
                             </div>
 
-                            <div class="demo-box">
+                            <div class="demo-box" data-testid="safe-reflected-output">
                                 @Model.ReflectedInput
                             </div>
                         </div>
@@ -151,7 +168,7 @@
                                     </div>
 
                                     <hr />
-                                    <div class="demo-box">
+                                    <div class="demo-box" data-testid="unsafe-stored-output">
                                         @Html.Raw(item.Content)
                                     </div>
                                 </div>
@@ -178,7 +195,7 @@
                                     </div>
 
                                     <hr />
-                                    <div class="demo-box">
+                                    <div class="demo-box" data-testid="safe-stored-output">
                                         @item.Content
                                     </div>
                                 </div>
@@ -344,25 +361,5 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
-    <script>
-        (function () {
-            const runButton = document.getElementById('runDomDemo');
-            const inputBox = document.getElementById('domInputBox');
-            const unsafeTarget = document.getElementById('domUnsafeTarget');
-            const safeTarget = document.getElementById('domSafeTarget');
-
-            function runDomDemo() {
-                const value = inputBox.value || '';
-
-                unsafeTarget.innerHTML = value;
-                safeTarget.textContent = value;
-            }
-
-            if (runButton) {
-                runButton.addEventListener('click', runDomDemo);
-            }
-
-            runDomDemo();
-        })();
-    </script>
+    <script src="~/js/xss-lab.js" asp-append-version="true"></script>
 }

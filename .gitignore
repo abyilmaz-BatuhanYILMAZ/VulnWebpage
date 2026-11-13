@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Local lab credentials and browser output
+.env
+node_modules/
+playwright-report/
+test-results/
