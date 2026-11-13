@@ -19,13 +19,18 @@ jobs:
         run: |
           printf 'MSSQL_SA_PASSWORD=LabA!%s\n' "$(openssl rand -hex 24)" > .env
           docker compose up --build -d
-          curl --fail --silent --show-error --retry 90 --retry-delay 2 --retry-connrefused http://127.0.0.1:8080/ > /dev/null
+          curl --fail --silent --show-error --retry 90 --retry-delay 2 --retry-all-errors --retry-connrefused http://127.0.0.1:8080/ > /dev/null
       - name: Install browser test dependencies
         run: |
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
       - name: Run browser regressions
         run: npm run test:browser
+      - name: Show startup diagnostics on failure
+        if: failure()
+        run: |
+          docker compose ps
+          docker compose logs --tail=100 web sqlserver
       - name: Remove containers and test data
         if: always()
         run: docker compose down --volumes --remove-orphans
