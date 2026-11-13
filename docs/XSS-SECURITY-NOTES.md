@@ -43,3 +43,7 @@ The test suite checks reflected script execution, strict CSP blocking, DOM safe/
 - Keep the service offline or loopback-only. The intentionally vulnerable endpoints must not be exposed publicly.
 
 Automated checks cover expected examples; they are not a general security certification.
+
+## Related exercises
+
+The repository also contains IDOR/BOLA, SQL injection and simulated SSRF training modules. Their local-only threat models and test cases are documented in [ADDITIONAL-LABS.md](ADDITIONAL-LABS.md).

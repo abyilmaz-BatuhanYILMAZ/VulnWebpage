@@ -44,7 +44,16 @@ if (!localLab)
 app.Use(async (context, next) =>
 {
     var path = context.Request.Path.Value ?? string.Empty;
-    var isLabPage = path == "/" ||
+    var isNewExercise = path.Equals("/labs", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/labs/", StringComparison.OrdinalIgnoreCase);
+    // New unsafe examples are available only in an explicitly enabled lab.
+    if (isNewExercise && !localLab)
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    var isLabPage = path == "/" || isNewExercise ||
         path.StartsWith("/XssLab", StringComparison.OrdinalIgnoreCase);
     if (isLabPage)
     {
@@ -52,8 +61,9 @@ app.Use(async (context, next) =>
         context.Response.Headers["X-Content-Type-Options"] = "nosniff";
         context.Response.Headers["Referrer-Policy"] = "no-referrer";
         if (HttpMethods.IsGet(context.Request.Method) &&
-            string.Equals(context.Request.Query["csp"].ToString(), "strict",
-                StringComparison.OrdinalIgnoreCase))
+            (isNewExercise ||
+             string.Equals(context.Request.Query["csp"].ToString(), "strict",
+                 StringComparison.OrdinalIgnoreCase)))
         {
             context.Response.Headers["Content-Security-Policy"] =
                 "default-src 'self'; script-src 'self'; style-src 'self' https://cdn.jsdelivr.net; " +

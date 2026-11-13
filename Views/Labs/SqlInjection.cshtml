@@ -1,0 +1,31 @@
+@model vulnerablewebpage.Models.SqlInjectionLabViewModel
+@{
+    ViewData["Title"] = "SQL injection";
+}
+<p><a href="/labs/">← All security exercises</a></p>
+<h1>SQL injection: query construction</h1>
+<p class="lead">This exercise uses a fresh SQLite <strong>in-memory</strong> database containing four harmless inventory records. The demonstration connection is set to read-only after seeding.</p>
+
+<form method="get" action="/labs/sql-injection" class="card card-body mb-3">
+    <label class="form-label" for="term">Product name search</label>
+    <input class="form-control mb-3" type="text" id="term" name="term" maxlength="60" value="@Model.Term" />
+    <label class="form-label" for="mode">Implementation</label>
+    <select class="form-select mb-3" name="mode" id="mode">
+        <option value="unsafe" selected="@(!Model.Secure)">Unsafe: concatenate input into SQL</option>
+        <option value="safe" selected="@(Model.Secure)">Safer: parameterized query</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Run query</button>
+</form>
+
+<div class="alert @(Model.Secure ? "alert-success" : "alert-danger")" data-testid="sql-outcome">@Model.Outcome</div>
+<ul class="list-group mb-3" data-testid="sql-results">
+@foreach (var item in Model.Items)
+{
+    <li class="list-group-item" data-testid="sql-item">@item.Id — @item.Name</li>
+}
+</ul>
+<p>Try the harmless boolean condition <code>' OR 1=1--</code>:
+    <a href="/labs/sql-injection?term=%27%20OR%201%3D1--&amp;mode=unsafe">unsafe query</a> ·
+    <a href="/labs/sql-injection?term=%27%20OR%201%3D1--&amp;mode=safe">parameterized query</a>.
+</p>
+<p class="text-muted">For safety this specific exercise rejects statement separators and other characters outside a narrow boolean-injection input set. Its database is recreated per request and is not connected to the main SQL Server database.</p>

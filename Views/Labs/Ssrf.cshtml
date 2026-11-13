@@ -1,0 +1,27 @@
+@model vulnerablewebpage.Models.SsrfLabViewModel
+@{
+    ViewData["Title"] = "SSRF";
+}
+<p><a href="/labs/">← All security exercises</a></p>
+<h1>SSRF: destination trust boundaries</h1>
+<p class="lead">This is a deterministic <strong>HTTP simulation</strong>. No outbound HTTP connection, DNS lookup, redirect, or socket is ever performed.</p>
+
+<form method="get" action="/labs/ssrf" class="card card-body mb-3">
+    <label class="form-label" for="url">Training URL</label>
+    <input class="form-control mb-3" type="url" id="url" name="url" maxlength="200" value="@Model.Url" />
+    <label class="form-label" for="mode">Implementation</label>
+    <select class="form-select mb-3" name="mode" id="mode">
+        <option value="unsafe" selected="@(!Model.Secure)">Unsafe: trust the destination</option>
+        <option value="safe" selected="@(Model.Secure)">Safer: exact HTTPS allowlist</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Resolve local fixture</button>
+</form>
+<div class="alert @(Model.Secure ? "alert-success" : "alert-danger")" data-testid="ssrf-outcome">@Model.Outcome</div>
+@if (Model.ResponseBody is not null)
+{
+    <div class="card card-body" data-testid="ssrf-response"><code>@Model.ResponseBody</code></div>
+}
+<p class="mt-3">Try the <a href="/labs/ssrf?url=http%3A%2F%2Finternal.lab.invalid%2Fadmin&amp;mode=unsafe">simulated internal address</a>,
+<a href="/labs/ssrf?url=http%3A%2F%2Finternal.lab.invalid%2Fadmin&amp;mode=safe">the blocked version</a>,
+or the <a href="/labs/ssrf?url=https%3A%2F%2Fpublic.lab.invalid%2Fcatalog&amp;mode=safe">allowed public fixture</a>.</p>
+<p class="text-muted">A real HTTP client must independently address redirects, DNS resolution and rebinding, IP ranges, URL parsing, and transport-level policies. This fixture does not claim to implement a production SSRF defense.</p>

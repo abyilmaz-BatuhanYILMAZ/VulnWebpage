@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "Security exercises";
+}
+<section class="alert alert-warning" role="alert">
+    <strong>Local training environment only.</strong>
+    The exercises deliberately show unsafe implementations. Use only the Docker loopback service and synthetic data.
+</section>
+
+<h1>Application security exercises</h1>
+<p class="lead">Compare a vulnerable implementation with an explicit authorization, query, or outbound-request control. The exercises are independent of the existing XSS lab.</p>
+
+<div class="row g-4">
+    <article class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h4">IDOR / BOLA</h2>
+                <p>Retrieve a synthetic document by ID, then repeat the request with ownership validation.</p>
+                <a class="btn btn-primary" href="/labs/authorization">Open authorization exercise</a>
+            </div>
+        </div>
+    </article>
+    <article class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h4">SQL injection</h2>
+                <p>Contrast string-built SQL with parameterized queries in a read-only, in-memory fixture.</p>
+                <a class="btn btn-primary" href="/labs/sql-injection">Open SQL exercise</a>
+            </div>
+        </div>
+    </article>
+    <article class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h4">SSRF</h2>
+                <p>Observe a simulated internal destination being accepted, then blocked by a strict URL allowlist.</p>
+                <a class="btn btn-primary" href="/labs/ssrf">Open SSRF exercise</a>
+            </div>
+        </div>
+    </article>
+</div>
+
+<p class="mt-4"><a href="/">Return to the XSS exercises</a></p>

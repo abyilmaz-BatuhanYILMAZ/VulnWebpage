@@ -1,0 +1,37 @@
+@model vulnerablewebpage.Models.AuthorizationLabViewModel
+@{
+    ViewData["Title"] = "IDOR / BOLA";
+}
+<p><a href="/labs/">← All security exercises</a></p>
+<h1>IDOR / BOLA: object-level authorization</h1>
+<p class="lead">The selected actor is a <strong>simulation</strong>, not a real logged-in user. Real services must obtain the identity from a trusted authentication system.</p>
+
+<form method="get" action="/labs/authorization" class="card card-body mb-3">
+    <label for="actor" class="form-label">Simulated actor</label>
+    <select name="actor" id="actor" class="form-select mb-3">
+        <option value="alice" selected="@(Model.Actor == "alice")">alice</option>
+        <option value="bob" selected="@(Model.Actor == "bob")">bob</option>
+    </select>
+    <label for="document-id" class="form-label">Document ID (Alice: 101, 103; Bob: 202)</label>
+    <input class="form-control mb-3" type="number" id="document-id" name="id" value="@Model.DocumentId" min="1" max="9999" />
+    <label for="mode" class="form-label">Implementation</label>
+    <select name="mode" id="mode" class="form-select mb-3">
+        <option value="unsafe" selected="@(!Model.Secure)">Unsafe: lookup by ID alone</option>
+        <option value="safe" selected="@(Model.Secure)">Safer: verify owner after lookup</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Read document</button>
+</form>
+
+<div class="alert @(Model.Secure ? "alert-success" : "alert-danger")" data-testid="authorization-outcome">
+    @Model.Outcome
+</div>
+@if (Model.Document is not null)
+{
+    <section class="card card-body" data-testid="authorization-document">
+        <h2 class="h5">@Model.Document.Title</h2>
+        <p>Owner: <strong>@Model.Document.Owner</strong></p>
+        <code>@Model.Document.Body</code>
+    </section>
+}
+<p class="mt-3">Try <a href="/labs/authorization?actor=alice&amp;id=202&amp;mode=unsafe">Alice requesting Bob's document (unsafe)</a>, then <a href="/labs/authorization?actor=alice&amp;id=202&amp;mode=safe">the same request with ownership checks</a>.</p>
+<p class="text-muted">The safe mode demonstrates a single object-ownership condition; complete authorization must also cover roles, tenant scope, list endpoints, writes, and trusted identity establishment.</p>
